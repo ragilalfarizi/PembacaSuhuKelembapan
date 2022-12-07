@@ -5,11 +5,11 @@
 
 #define DHTPIN 13
 
-#define DHTTYPE DHT11 // DHT 11
+#define DHTTYPE DHT11
 
 // Wifi network station credentials
-#define WIFI_SSID "DM"
-#define WIFI_PASSWORD "kamardimana"
+#define WIFI_SSID "MobilButut"
+#define WIFI_PASSWORD "123456789"
 
 // Telegram BOT Token (Get from Botfather)
 #define BOT_TOKEN "5863567021:AAE0jXupnwaHMrO0O5FI9w1FcDj47zWrSo8"
@@ -26,50 +26,6 @@ unsigned long bot_lasttime;          // last time messages' scan has been done
 float temperatureC;
 float temperatureF;
 float humidity;
-
-void handleNewMessages(int numNewMessages);
-
-void setup()
-{
-    Serial.begin(9600);
-    Serial.println(F("DHTxx test!"));
-
-    dht.begin();
-
-    // attempt to connect to Wifi network:
-    Serial.print("Connecting to Wifi SSID ");
-    Serial.print(WIFI_SSID);
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        Serial.print(".");
-        delay(500);
-    }
-    Serial.print("\nWiFi connected. IP address: ");
-    Serial.println(WiFi.localIP());
-}
-
-void loop()
-{
-    humidity = dht.readHumidity();
-    // Read temperature as Celsius (the default)
-    temperatureC = dht.readTemperature();
-    // Read temperature as Fahrenheit (isFahrenheit = true)
-    temperatureF = dht.readTemperature(true);
-
-    if (millis() - bot_lasttime > BOT_MTBS)
-    {
-        int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-        while (numNewMessages)
-        {
-            Serial.println("got response");
-            handleNewMessages(numNewMessages);
-            numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-        }
-        bot_lasttime = millis();
-    }
-}
 
 void handleNewMessages(int numNewMessages)
 {
@@ -118,5 +74,47 @@ void handleNewMessages(int numNewMessages)
                 bot.sendMessage(chat_id, welcome, "Markdown");
             }
         }
+    }
+}
+
+void setup()
+{
+    Serial.begin(9600);
+    Serial.println(F("DHTxx test!"));
+
+    dht.begin();
+
+    // attempt to connect to Wifi network:
+    Serial.print("Connecting to Wifi SSID ");
+    Serial.print(WIFI_SSID);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        Serial.print(".");
+        delay(500);
+    }
+    Serial.print("\nWiFi connected. IP address: ");
+    Serial.println(WiFi.localIP());
+}
+
+void loop()
+{
+    humidity = dht.readHumidity();
+    // Read temperature as Celsius (the default)
+    temperatureC = dht.readTemperature();
+    // Read temperature as Fahrenheit (isFahrenheit = true)
+    temperatureF = dht.readTemperature(true);
+
+    if (millis() - bot_lasttime > BOT_MTBS)
+    {
+        int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+        while (numNewMessages)
+        {
+            Serial.println("got response");
+            handleNewMessages(numNewMessages);
+            numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+        }
+        bot_lasttime = millis();
     }
 }
