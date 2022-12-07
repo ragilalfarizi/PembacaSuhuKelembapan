@@ -1,4 +1,9 @@
+#ifdef ESP32
 #include <WiFi.h>
+#else
+#include <ESP8266WiFi.h>
+#endif
+
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 #include <HTTPClient.h>
@@ -16,6 +21,10 @@
 // Telegram BOT Token (Get from Botfather)
 #define BOT_TOKEN "5863567021:AAE0jXupnwaHMrO0O5FI9w1FcDj47zWrSo8"
 #define CHAT_ID "5277794106"
+
+#ifdef ESP8266
+X509List cert(TELEGRAM_CERTIFICATE_ROOT);
+#endif
 
 WiFiClientSecure secured_client;
 UniversalTelegramBot bot(BOT_TOKEN, secured_client);
@@ -89,13 +98,22 @@ void setup()
     Serial.begin(9600);
     Serial.println(F("DHTxx test!"));
 
+#ifdef ESP8266
+    configTime(0, 0, "pool.ntp.org");
+    secured_client.setTrustAnchors(cert);
+#endif
+
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+
     dht.begin();
 
     // attempt to connect to Wifi network:
     Serial.print("Connecting to Wifi SSID ");
     Serial.print(WIFI_SSID);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+#ifdef ESP32
     secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
+#endif
     while (WiFi.status() != WL_CONNECTED)
     {
         Serial.print(".");
@@ -103,8 +121,6 @@ void setup()
     }
     Serial.print("\nWiFi connected. IP address: ");
     Serial.println(WiFi.localIP());
-
-    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
 void loop()
