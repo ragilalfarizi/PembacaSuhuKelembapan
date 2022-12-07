@@ -1,7 +1,9 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
+#include <HTTPClient.h>
 #include "DHT.h"
+#include "time.h"
 
 #define DHTPIN 13
 
@@ -16,9 +18,14 @@
 #define CHAT_ID "5277794106"
 
 WiFiClientSecure secured_client;
-
 UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 
+const char *ntpServer = "pool.ntp.org";
+const long gmtOffset_sec = 19800;
+const int daylightOffset_sec = 0;
+
+// Google script ID and required credentials
+String GOOGLE_SCRIPT_ID = "AKfycbxng6DJAHxfy1DJ3ohS0hTLqgSsZglW1I-_7BdQSzCdcXakOJEnzrH2IjMmXF3ESCqiLQ";
 DHT dht(DHTPIN, DHTTYPE);
 
 const unsigned long BOT_MTBS = 1000; // mean time between scan messages
@@ -96,6 +103,8 @@ void setup()
     }
     Serial.print("\nWiFi connected. IP address: ");
     Serial.println(WiFi.localIP());
+
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
 void loop()
@@ -117,4 +126,27 @@ void loop()
         }
         bot_lasttime = millis();
     }
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        HTTPClient http;
+        String url = "https://script.google.com/macros/s/" + GOOGLE_SCRIPT_ID + "/exec?read";
+        Serial.println("Making a request");
+        http.begin(url.c_str()); // Specify the URL and certificate
+        http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+        int httpCode = http.GET();
+        String payload;
+        if (httpCode > 0)
+        { // Check for the returning code
+            payload = http.getString();
+            Serial.println(httpCode);
+            Serial.println(payload);
+        }
+        else
+        {
+            Serial.println("Error on HTTP request");
+        }
+        http.end();
+    }
+    delay(1000);
 }
