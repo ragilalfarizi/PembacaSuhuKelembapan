@@ -1,42 +1,30 @@
-#ifdef ESP32
 #include <WebServer.h>
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
 #include <HTTPUpdateServer.h>
-
+#include <AutoConnect.h>
+#include "bacaDHT.h"
+#include "SendHTML2.h"
 
 WebServer server(80);
 HTTPUpdateServer httpUpdater;
 
-#else
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPClient.h>
-#include <ESP8266httpUpdate.h>
-#include <ESP8266HTTPUpdateServer.h>
-
-ESP8266WebServer server(80);
-ESP8266HTTPUpdateServer httpUpdater;
-
-#endif
-#include "sendHTML.h"
-#include "bacadht.h"
-
-/*Initialize server & httpUpdater object*/
-
 uint32_t chipId = 0;
 uint32_t chipModel = 0;
-const int led = 26;
+const int led = 17;
 
 void handleRoot() {
-  String message = "Selamat datang di ESP8266!\n\n";
-  message += "Nama : Yumna Salma Nabila \nNIM : H1A020002 \nUniversitas Jenderal Soedirman\n";
+  String message = "Selamat datang di ESP32!\n\n";
+  message += "Nama : Maria Kusuma W \nNIM : H1A020090 \nUniversitas Jenderal Soedirman\n";
   message += "Chip Model = ";
-  message += String(ESP.getFlashChipMode()).c_str();
+  message += String(ESP.getChipModel()).c_str();
   message += "\nChipID = ";
   message += String(chipId).c_str();
   message += "\nMyIP Address = ";
   message += String(WiFi.localIP().toString().c_str());
   //server.send(200, "text/plain", message);
+  Temperature = dht.readTemperature(); // Gets the values of the temperature
+  Humidity = dht.readHumidity(); // Gets the values of the humidity
   String IP = WiFi.localIP().toString().c_str();
   //chipModel = String(ESP.getChipModel()).c_str(); 
   server.send(200, "text/html", SendHTML(Temperature, Humidity, IP, chipId));
