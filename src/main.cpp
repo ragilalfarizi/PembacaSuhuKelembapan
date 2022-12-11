@@ -8,8 +8,8 @@
 
 #include "Arduino.h"
 #include <WiFiUdp.h>
-#include "OTAUpdate.h"
-#include "WebConfig.h"
+#include "OTAupdate.h"
+#include "webConfig.h"
 #include "MQTT_Config.h"
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>

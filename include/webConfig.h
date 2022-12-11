@@ -3,7 +3,7 @@
 #include <HTTPUpdate.h>
 #include <HTTPUpdateServer.h>
 #include <AutoConnect.h>
-#include "bacaDHT.h"
+#include "bacadht.h"
 #include "SendHTML2.h"
 
 WebServer server(80);
